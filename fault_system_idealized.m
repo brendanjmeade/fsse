@@ -101,6 +101,34 @@ function [] = fault_system_idealized()
     xlabel('time');
     box on;
     legend('d total - ode45', 'd1 - ode45', 'd2 - ode45', 'd total - Euler', 'd1 - Euler', 'd2 - Euler');
+    
+    
+    figure;
+    start_idx = 1000;
+    subplot(2, 2, 1);
+    plot(d1(start_idx:end), sigma_shear1(start_idx:end), 'r.');
+    xlabel("displacment");
+    ylabel("shear stress");
+    title("displacement fault 1 - shear stress fault 1");
+    
+    subplot(2, 2, 2);
+    plot(d1(start_idx:end), sigma_shear2(start_idx:end), 'r.');
+    xlabel("displacment");
+    ylabel("shear stress");
+    title("displacement fault 1 - shear stress fault 2");
+
+    subplot(2, 2, 3);
+    plot(d2(start_idx:end), sigma_shear1(start_idx:end), 'r.');
+    xlabel("displacment");
+    ylabel("shear stress");
+    title("displacement fault 2 - shear stress fault 1");
+
+    subplot(2, 2, 4);
+    plot(d2(start_idx:end), sigma_shear2(start_idx:end), 'r.');
+    xlabel("displacment");
+    ylabel("shear stress");
+    title("displacement fault 2 - shear stress fault 2");
+
 end
 
 
