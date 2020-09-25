@@ -128,7 +128,7 @@ function [] = fault_system_idealized()
     xlabel("displacment");
     ylabel("shear stress");
     title("displacement fault 2 - shear stress fault 2");
-
+    
 end
 
 
