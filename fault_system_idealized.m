@@ -15,7 +15,7 @@ function [] = fault_system_idealized()
     v = 1;
     mu = 1;
     H = 1;
-    dt = 0.001;
+    dt = 0.000001;
     t = [0:dt:10];
     d = v*t;
     d1 = 0*t;
@@ -102,9 +102,8 @@ function [] = fault_system_idealized()
     box on;
     legend('d total - ode45', 'd1 - ode45', 'd2 - ode45', 'd total - Euler', 'd1 - Euler', 'd2 - Euler');
     
-    
     figure;
-    start_idx = 1000;
+    start_idx = 1000000;
     subplot(2, 2, 1);
     plot(d1(start_idx:end), sigma_shear1(start_idx:end), 'r.');
     xlabel("displacment");
