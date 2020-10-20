@@ -18,24 +18,9 @@ function fault_system_epsilon()
     dt = 0.001;
     t = [0:dt:10];
 
-    % To toggle epsilon1 angle or ps_angle, pick different flags
-    eps1_flag = 1;
-    ps_angle_flag = 1;
-
-    if eps1_flag == 1
-        epsilon1 = 0.05;
-    elseif eps1_flag == 2
-        epsilon1 = 0.02;
-    else
-        epsilon1 = 0;
-    end
+    epsilon1 = 0.05;
     epsilon2 = 0;
-    if ps_angle_flag == 1
-        ps_angle = 0.1 * cos(2 * t); 
-    else
-        ps_angle = 0 * t;
-    end
-        
+    ps_angle = 0.1 * cos(2 * t); 
     [dd, dd1, dd2] = euler_integrate(t, v, [0, 0, 0], epsilon1, epsilon2, ...
                                      tau0, ps_angle, mu, H);
     
@@ -46,7 +31,7 @@ function fault_system_epsilon()
     plot(t, dd2, "-b")
     xlabel("time");
     box on;
-    legend("d", "d1", "d2");    
+    legend("d", "d1", "d2");
 end
 
 
