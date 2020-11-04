@@ -11,15 +11,15 @@ function fault_system_parameter_sweep02()
 % Stress is calculated elastically
 % Written by VCT
     sigma_xy = 1;
-    tau0 = 0.2;
+    tau0 = 1.3;
     v = 1;
     mu = 1;
     H = 1;
-    dt = 0.00001;
+    dt = 0.000005;
     t = [0:dt:10];
 
-    epsilon1_vec = linspace(0, 1.0, 100);
-    epsilon2 = 0.5;
+    epsilon1_vec = linspace(-0.005, 0.005, 50);
+    epsilon2 = -0.02;
     ps_angle = 0.1 * cos(2 * t);
     % ps_angle(round(numel(t)/2):1:end) = ps_angle(round(numel(t)/2):1:end) + 0.1; 
     dmat = zeros(numel(t), numel(epsilon1_vec));
