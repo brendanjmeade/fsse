@@ -15,7 +15,7 @@ function fault_system_parameter_sweep02()
     v = 1;
     mu = 1;
     H = 1;
-    dt = 0.000005;
+    dt = 0.00001;
     t = [0:dt:10];
 
     epsilon1_vec = linspace(-0.005, 0.005, 50);
@@ -28,10 +28,10 @@ function fault_system_parameter_sweep02()
     vvmat = zeros(numel(t), numel(epsilon1_vec));
     v1mat = zeros(numel(t), numel(epsilon1_vec));
     v2mat = zeros(numel(t), numel(epsilon1_vec));
-    
+    sigma_xymat = zeros(numel(t), numel(epsilon1_vec));
     for i = 1:length(epsilon1_vec)
         epsilon1 = epsilon1_vec(i);
-        [d, d1, d2, vv, v1, v2] = euler_integrate(t, v, [0, 0, 0], ...
+        [d, d1, d2, vv, v1, v2, sigma_xy_keep] = euler_integrate(t, v, [0, 0, 0], ...
                                                   epsilon1, epsilon2, ...
                                                   tau0, ps_angle, mu, H);
         dmat(:, i) = d;
@@ -40,10 +40,11 @@ function fault_system_parameter_sweep02()
         vvmat(:, i) = vv;
         v1mat(:, i) = v1;
         v2mat(:, i) = v2;
+        sigma_xymat(:, i) = sigma_xy_keep;
     end
     
     figure;    
-    subplot(2, 1, 1)
+    subplot(3, 1, 1)
     imagesc([min(t) max(t)], [min(epsilon1_vec, max(epsilon1_vec))], v1mat')
     colormap(parula(30))
     xlabel("time")
@@ -51,17 +52,27 @@ function fault_system_parameter_sweep02()
     title("v1")
     colorbar;
 
-    subplot(2, 1, 2)
+    subplot(3, 1, 2)
     imagesc([min(t) max(t)], [min(epsilon1_vec, max(epsilon1_vec))], v2mat')
     colormap(parula(30))
     xlabel("time")
     ylabel("epsilon1")
     title("v2")
-    colorbar
+    colorbar;
+
+    subplot(3, 1, 3)
+    imagesc([min(t) max(t)], [min(epsilon1_vec, max(epsilon1_vec))], sigma_xymat');
+    colormap(parula(30))
+    xlabel("time")
+    ylabel("sigmaxy")
+    title("sigmaxy")
+    colorbar;
+    
+    
 end
 
 
-function [d, d1, d2, vv, v1, v2] = euler_integrate(t, v, ics,...
+function [d, d1, d2, vv, v1, v2, sigma_xy_keep] = euler_integrate(t, v, ics,...
                                                    epsilon1, epsilon2, ...
                                                    tau0, ps_angle, mu, H)
     dt = t(2) - t(1);
@@ -71,9 +82,10 @@ function [d, d1, d2, vv, v1, v2] = euler_integrate(t, v, ics,...
     vv = v * ones(size(t));
     v1 = zeros(size(t));
     v2 = zeros(size(t));
- 
+    sigma_xy_keep = zeros(size(t));
     for i=2:length(t)
         sigma_xy = mu / H * (d(i-1) - d1(i-1) - d2(i-1));
+        sigma_xy_keep(i) = sigma_xy;
         % sigma_shear1(i) = sigma_xy * cos(ps_angle(i-1) + epsilon1);
         % sigma_shear2(i) = sigma_xy * cos(ps_angle(i-1) + epsilon2);
         
