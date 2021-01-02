@@ -12,21 +12,21 @@ function fault_system_epsilon2_viscous_dimensions()
 % Written by VCT
     close all;
     % Original values
-    % tau0 = 1;
-    % v = 1;
-    % mu = 1;
-    % H = 1;
-    % dt = 0.001;
-    % t = [0:dt:10];
+    tau0 = 1;
+    v = 1;
+    mu = 1;
+    H = 1;
+    dt = 0.01;
+    t = [0:dt:10];
     
     % Dimensionalized values
     siay = 60 * 60 * 24 * 365.25; % seconds in a year
-    tau0 = 15e6; % critical switching stress (Pa)
-    v = 0.05 / siay; % reference velocity (m/s) - 50 mm/yr
-    mu = 3e10; % shear modulus (Pa)
-    H = 50e3; % length scale (km)
-    t = [0:0.1:1e4]; % (years!)
-    t = siay * t;
+    % tau0 = 10e6; % critical switching stress (Pa)
+    % v = 0.05 / siay; % reference velocity (m/s) - 50 mm/yr
+    % mu = 3e10; % shear modulus (Pa)
+    % H = 50e3; % length scale (km)
+    % t = [0:1:1e4]; % (years!)
+    % t = siay * t;
     
     epsilon1 = 0.05;
     epsilon2 = 0.0;
@@ -58,33 +58,33 @@ function [d, d1, d2] = euler_integrate(t, v, ics, epsilon1, epsilon2, tau0, ps_a
         sigma_xy = mu / H * (d(i-1) - d1(i-1) - d2(i-1));
 
         % Victor's new lines from late October
-        % sigma_shear1(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon1)+sigma_xy*cos(2*epsilon1);
-        % sigma_shear2(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);
+        sigma_shear1(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon1)+sigma_xy*cos(2*epsilon1);
+        sigma_shear2(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);
         % sigma_shear1(i) = 6e3*cos(2*t(i-1))*sin(2*epsilon1)+sigma_xy*cos(2*epsilon1);
         % sigma_shear2(i) = 6e3*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);
-        sigma_shear1(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon1) + sigma_xy * cos(2 * epsilon1);
-        sigma_shear2(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon2) + sigma_xy * cos(2 * epsilon2);
+        % sigma_shear1(i) = 2e7 * cos(2 * t(i-1)) * sin(2 * epsilon1) + sigma_xy * cos(2 * epsilon1);
+        % sigma_shear2(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon2) + sigma_xy * cos(2 * epsilon2);
         
-        % [sigma_shear1(i) / tau0, sigma_shear2(i) / tau0]
+        disp([sigma_shear1(i) / tau0, sigma_shear2(i) / tau0])
         
         if sigma_shear1(i) >= tau0 && sigma_shear2(i) < tau0
             % increment fault 1
-            disp("Case 1")
+            % disp("Case 1")
             d1(i) = d1(i-1) + v * dt;
             d2(i) = d2(i-1);
         elseif sigma_shear1(i) < tau0 && sigma_shear2(i) >= tau0
             % increment fault 2
-            disp("Case 2")
+            % disp("Case 2")
             d1(i) = d1(i-1);
             d2(i) = d2(i-1) + v * dt;
         elseif sigma_shear1(i) < tau0 && sigma_shear2(i) < tau0
             % neither fault incremented
-            disp("Case 3")
+            % disp("Case 3")
             d1(i) = d1(i-1);
             d2(i) = d2(i-1);
         else
             % split the increment with a 50% rule
-            disp("Case 4")
+            % disp("Case 4")
             d1(i) = d1(i-1) + 0.5 * v * dt;
             d2(i) = d2(i-1) + 0.5 * v * dt;
         end
