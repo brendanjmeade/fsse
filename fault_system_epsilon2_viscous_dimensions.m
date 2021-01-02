@@ -63,7 +63,7 @@ function [d, d1, d2] = euler_integrate(t, v, ics, epsilon1, epsilon2, tau0, ps_a
         % sigma_shear1(i) = 6e3*cos(2*t(i-1))*sin(2*epsilon1)+sigma_xy*cos(2*epsilon1);
         % sigma_shear2(i) = 6e3*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);
         sigma_shear1(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon1) + sigma_xy * cos(2 * epsilon1);
-        sigma_shear2(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon2) + sigma_xy * cos(2 * epsilon1);
+        sigma_shear2(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon2) + sigma_xy * cos(2 * epsilon2);
         
         % [sigma_shear1(i) / tau0, sigma_shear2(i) / tau0]
         
