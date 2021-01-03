@@ -11,80 +11,63 @@ function fault_system_epsilon2_viscous_dimensions()
 % Stress is calculated elastically
 % Written by VCT
     close all;
-    % Original values
     tau0 = 1;
     v = 1;
     mu = 1;
     H = 1;
     dt = 0.01;
     t = [0:dt:10];
-    
-    % Dimensionalized values
-    siay = 60 * 60 * 24 * 365.25; % seconds in a year
-    % tau0 = 10e6; % critical switching stress (Pa)
-    % v = 0.05 / siay; % reference velocity (m/s) - 50 mm/yr
-    % mu = 3e10; % shear modulus (Pa)
-    % H = 50e3; % length scale (km)
-    % t = [0:1:1e4]; % (years!)
-    % t = siay * t;
-    
+        
     epsilon1 = 0.05;
     epsilon2 = 0.0;
-    ps_angle = 0.1 * cos(2 * t); 
-    [d_total_plastic, d_1_plastic, d_2_plastic] = euler_integrate(t, v, [0, 0, 0], epsilon1, epsilon2, tau0, ps_angle, mu, H);
-    [d_total_viscous, d_1_viscous, d_2_viscous] = euler_integrate_viscous(t, v, [0, 0, 0], epsilon1, epsilon2, tau0, ps_angle, mu, H);
-    
+    [d_total_plastic, d_1_plastic, d_2_plastic] = euler_integrate(t, v, [0, 0, 0], epsilon1, epsilon2, tau0, mu, H);
+    [d_total_viscous, d_1_viscous, d_2_viscous] = euler_integrate_viscous(t, v, [0, 0, 0], epsilon1, epsilon2, tau0, mu, H);
+
     figure;
     hold on;
-    plot(t/siay, d_total_plastic, "-k")
-    plot(t/siay, d_1_plastic, "-r")
-    plot(t/siay, d_2_plastic, "-b")
+    plot(t, d_total_plastic, "-k")
+    plot(t, d_1_plastic, "-r")
+    plot(t, d_2_plastic, "-b")
     % plot(t, d_total_viscous, "--k")
     % plot(t, d_1_viscous, "--r")
     % plot(t, d_2_viscous, "--b")
-    xlabel("time (years)");
+    xlabel("time (-)");
     box on;
     legend("d", "d1", "d2");
 end
 
 
-function [d, d1, d2] = euler_integrate(t, v, ics, epsilon1, epsilon2, tau0, ps_angle, mu, H)
+function [d, d1, d2] = euler_integrate(t, v, ics, epsilon1, epsilon2, tau0, mu, H)
     dt = t(2) - t(1);
     d = v * t;
     d1 = zeros(size(t));
     d2 = zeros(size(t));
-            
+    
+    stress_scale_factor = 2e0; % Pa - FOR DIMENSIONALIZATION
+    tau0 = stress_scale_factor * tau0;
     for i=2:length(t)
         sigma_xy = mu / H * (d(i-1) - d1(i-1) - d2(i-1));
-
+        sigma_xy = stress_scale_factor * sigma_xy;
+        
         % Victor's new lines from late October
         sigma_shear1(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon1)+sigma_xy*cos(2*epsilon1);
-        sigma_shear2(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);
-        % sigma_shear1(i) = 6e3*cos(2*t(i-1))*sin(2*epsilon1)+sigma_xy*cos(2*epsilon1);
-        % sigma_shear2(i) = 6e3*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);
-        % sigma_shear1(i) = 2e7 * cos(2 * t(i-1)) * sin(2 * epsilon1) + sigma_xy * cos(2 * epsilon1);
-        % sigma_shear2(i) = 2e5 * cos(2 * t(i-1)) * sin(2 * epsilon2) + sigma_xy * cos(2 * epsilon2);
-        
+        sigma_shear2(i) = 0.1*cos(2*t(i-1))*sin(2*epsilon2)+sigma_xy*cos(2*epsilon2);        
         disp([sigma_shear1(i) / tau0, sigma_shear2(i) / tau0])
         
         if sigma_shear1(i) >= tau0 && sigma_shear2(i) < tau0
             % increment fault 1
-            % disp("Case 1")
             d1(i) = d1(i-1) + v * dt;
             d2(i) = d2(i-1);
         elseif sigma_shear1(i) < tau0 && sigma_shear2(i) >= tau0
             % increment fault 2
-            % disp("Case 2")
             d1(i) = d1(i-1);
             d2(i) = d2(i-1) + v * dt;
         elseif sigma_shear1(i) < tau0 && sigma_shear2(i) < tau0
             % neither fault incremented
-            % disp("Case 3")
             d1(i) = d1(i-1);
             d2(i) = d2(i-1);
         else
             % split the increment with a 50% rule
-            % disp("Case 4")
             d1(i) = d1(i-1) + 0.5 * v * dt;
             d2(i) = d2(i-1) + 0.5 * v * dt;
         end
@@ -92,7 +75,7 @@ function [d, d1, d2] = euler_integrate(t, v, ics, epsilon1, epsilon2, tau0, ps_a
 end
 
 
-function [d, d1, d2] = euler_integrate_viscous(t, v, ics, epsilon1, epsilon2, tau0, ps_angle, mu, H)
+function [d, d1, d2] = euler_integrate_viscous(t, v, ics, epsilon1, epsilon2, tau0, mu, H)
     dt = t(2) - t(1);
     d = v * t;
     d1 = zeros(size(t));
